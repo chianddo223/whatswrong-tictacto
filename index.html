@@ -16,21 +16,63 @@
             text-align: center;
             font-size: 5em;
         }
+
+        div {
+            font-size: 5em;
+        }
     </style>
 </head>
 
 <body>
     <script>
         let turn = 'O';
-        const data = [];
+        const rows = [];
         const $table = document.createElement('table');
         const $result = document.createElement('div');
+
+        const checkWinner = (target) => { // 내가 누른 cell의 위치(index)찾아서 비교하기.
+            let rowIndex;
+            let cellIndex;
+            rows.forEach((row, ri) => {
+                row.forEach((cell, ci) => {
+                    if (cell === target) {
+                        rowIndex = ri;
+                        cellIndex = ci;
+                    };
+                });
+            });
+            let hasWinner = false;
+            if ( //가로줄 승리
+                rows[rowIndex][0].textContent === turn &&
+                rows[rowIndex][1].textContent === turn &&
+                rows[rowIndex][2].textContent === turn
+            ) {
+                hasWinner = true;
+            } else if ( //세로줄 승리
+                rows[0][cellIndex].textContent === turn &&
+                rows[1][cellIndex].textContent === turn &&
+                rows[2][cellIndex].textContent === turn
+            ) {
+                hasWinner = true;
+            } else if ( // 대각선 승리
+                (rows[0][0].textContent === turn &&
+                    rows[1][1].textContent === turn &&
+                    rows[2][2].textContent === turn)
+                || (rows[0][2].textContent === turn &&
+                    rows[1][1].textContent === turn &&
+                    rows[2][0].textContent === turn)
+            ) {
+                hasWinner = true;
+            }
+            return hasWinner;
+        }
+
         for (let i = 0; i < 3; i++) {
             const $tr = document.createElement('tr');
             const cells = [];
             for (let j = 0; j < 3; j++) { //만드는 각 칸마다 실행해줄 것들.
                 const $td = document.createElement('td');
-                cells.push('$td');
+                cells.push($td);
                 $td.addEventListener("click", (event) => {
                     if ((event.target.className).includes('clicked')) { // 이미 클릭된 칸이면 실행멈추기.
                         return;
@@ -38,12 +80,29 @@
                     // 클릭되었다는 클래스를 달아주고, 자신의 턴을 텍스트로 나타내기.
                     $td.classList.add('clicked');
                     event.target.textContent = turn;
+                    // 
+                    if (checkWinner(event.target)) {
+                        $result.textContent = `${turn} 승리 !!`;
+                        return;
+                    };
+                    let draw = true;
+                    rows.forEach((row) => {
+                        row.forEach((cell) => {
+                            if (!cell.textContent) {
+                                draw = false;
+                            }
+                        });
+                    });
+                    if (draw) {
+                        $result.textContent = "무승부.";
+                        return;
+                    }
                     turn = (turn === 'O' ? 'X' : 'O');
                 });
                 $tr.append($td);
             }
             $table.append($tr);
-            data.push(cells);
+            rows.push(cells);
         };
         document.body.append($table);
         document.body.append($result);
