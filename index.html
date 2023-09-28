@@ -31,16 +31,9 @@
         const $result = document.createElement('div');
 
         const checkWinner = (target) => { // 내가 누른 cell의 위치(index)찾아서 비교하기.
-            let rowIndex;
-            let cellIndex;
-            rows.forEach((row, ri) => {
-                row.forEach((cell, ci) => {
-                    if (cell === target) {
-                        rowIndex = ri;
-                        cellIndex = ci;
-                    };
-                });
-            });
+            let rowIndex = target.parentNode.rowIndex;
+            let cellIndex = target.cellIndex;
+            // 세칸이 다 채워져있는지.
             let hasWinner = false;
             if ( //가로줄 승리
                 rows[rowIndex][0].textContent === turn &&
@@ -73,7 +66,7 @@
             for (let j = 0; j < 3; j++) { //만드는 각 칸마다 실행해줄 것들.
                 const $td = document.createElement('td');
                 cells.push($td);
-                $td.addEventListener("click", (event) => {
+                $td.addEventListener("click", (event) => { // 클릭할 때 마다 실행되는 검증절차.
                     if ((event.target.className).includes('clicked')) { // 이미 클릭된 칸이면 실행멈추기.
                         return;
                     };
@@ -85,14 +78,7 @@
                         $result.textContent = `${turn} 승리 !!`;
                         return;
                     };
-                    let draw = true;
-                    rows.forEach((row) => {
-                        row.forEach((cell) => {
-                            if (!cell.textContent) {
-                                draw = false;
-                            }
-                        });
-                    });
+                    const draw = rows.flat().every((cell) => cell.textContent);
                     if (draw) {
                         $result.textContent = "무승부.";
                         return;
